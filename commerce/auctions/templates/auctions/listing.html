@@ -1,0 +1,114 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+
+    <h2> Listing: {{ listing.title }} </h2>
+
+    <!-- Add or remove watchlist and close listing -->
+    {% if user.is_authenticated %}
+        {% if user in listing.watchlist.all %}
+            <form action="{% url 'auctions:listing' listing_id=listing.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" name="remove_watchlist" class="btn btn-success btn-sm"> Remove from watchlist</button>
+            </from>
+        {% else %}
+            <form action="{% url 'auctions:listing' listing_id=listing.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" name="add_watchlist" class="btn btn-success btn-sm"> Add to watchlist</button>
+            </from>
+        {% endif %}
+        {% if user == listing.user %}
+            {% if listing.active == True %}
+                <form action="{% url 'auctions:listing' listing_id=listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="close_listing" class="btn btn-danger btn-sm"> Close listing</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p> Signed in to add to watchlist. </p>
+    {% endif %}
+    <!-- End of add or remove watchlist and close listing -->
+    <hr>
+    <img src="{{ listing.image }}" style="max-width: 600px; max-height: 600px;">
+    <div class="container m-2">
+        <div class="row">
+            {{ listing.description }}
+        </div>
+        {% if listing.active == False %}
+            <div class="row">
+                <h3> This listing is closed. </h3>
+            </div>
+            {% if bid.user == user %}
+                <div class="row">
+                    <h3> You won the auction! </h3>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="row">
+                {% if bid == None %}
+                    <h3>${{ listing.bid }}</h3>
+                {% else %}
+                    <h3>${{ bid }}</h3>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% if bid.user == user %}
+                    {{ bid_count }} bid(s) so far. Your bid is the current bid.
+                {% else %}
+                    {{ bid_count }} bid(s) so far.
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <form action="{% url 'auctions:listing' listing_id=listing.id%}" method="POST">
+                        {% csrf_token %}
+                        <input type="number" name="bid" placeholder="Enter your bid">
+                        <button typle="submit" class="btn btn-primary btn-sm">Place Bid</button>
+                        {% if message %}
+                            {{ message }}
+                        {% endif %}
+                    </form>
+                {% else %}
+                    <h6> Signed in to place a bid! </h6>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="row">
+            <h3> Details </h3>
+            <ul>
+                <li>Listed by: {{ listing.user}}</li>
+                <li>
+                    {% if listing.category %}
+                        Category: {{ listing.category }}
+                    {% else %}
+                        Category: No category listed
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        {% if user.is_authenticated %}        
+            <form action="{% url 'auctions:listing' listing_id=listing.id %}" method="POST">
+                {% csrf_token %}
+                <label for="comments">Comments</label>
+                <textarea class="form-control" rows="5" name="comment" placeholder="Write a comment"></textarea>
+                <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
+            </form>
+        {% endif %}
+    </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#comments">Show Comments</button>
+    <div id="comments" class="collapse">
+        {% for comment in comments %}
+            <div style="border: 2px solid #b1b1b1c2; border-radius: 8px;">
+                <div class="row">
+                    <p>{{ comment.comment }}</p>
+                </div>
+                <div class="row" style="text-align: right;">
+                    <p>User:{{ comment.user }}</p>
+                </div>
+            </div>
+        {% empty %}
+            <div class="row">
+                <p>No comments yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

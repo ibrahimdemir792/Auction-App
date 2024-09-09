@@ -1,0 +1,41 @@
+body {
+    padding: 10px;
+}
+
+
+img {
+    max-width: 300px;
+    max-height: 300px;
+    object-fit:cover; 
+    position: relative;
+
+}
+
+
+.divider {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+
+.comment_border {
+        border: 2px solid #b1b1b1c2;
+        border-radius: 8px;
+    }
+
+
+h3 {
+    a {
+        text-decoration: none;
+        color: black;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+
+button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
